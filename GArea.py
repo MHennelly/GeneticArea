@@ -9,67 +9,87 @@ class Gene:
         self.intervals = []
 
     def rand(self):
-        n = 10
-        while (n > 0):
-            self.intervals.append(random.randint(-1000, 1000))
-            n -= 1
+        n = 0
+        while n < 10:
+            self.intervals.append(random.randint(0, 1000))
+            n += 1
 
     def calcCost(self, template):
-        self.cost = 0
-        for i in range(1, 10):
+        total = 0
+        j = 1
+        while j < len(self.intervals):
             equation = template
-            L = equation.replace('x', str(i - 0.5))
-            R = equation.replace('x', str(i + 0.5))
-            left, right = 0, 0
-            left += eval(L)
-            right += eval(R)
-            self.cost += (math.fabs(left - self.intervals[i])) + math.fabs((right - self.intervals[i]))
+            L = equation.replace('x', str(j - 1))
+            R = equation.replace('x', str(j))
+            left = eval(L)
+            right = eval(R)
+            total += (math.fabs(left - self.intervals[int(j)]) + math.fabs(right - self.intervals[int(j)]))
+            self.cost = total
+            j += 1
+
+    def calcArea(self):
+        total = 0
+        for i in range(0, len(self.intervals)):
+            total += self.intervals[i]
+        return total
 
     def mate(self, pair):
-        child1, child2 = Gene()
-        child1.rand()
-        child2.rand()
+        child = Gene()
+        child.rand()
         for i in range(0, 5):
-            child1.intervals[i] = self.intervals[i]
-            child2.intervals[i] = pair.intervals[i]
-        for i in range(6, 10):
-            child1.intervals[i] = pair.intervals[i]
-            child2.intervals[i] = self.intervals[i]
-        return child1, child2
+            child.intervals[i] = self.intervals[i]
+        for i in range(5, 10):
+            child.intervals[i] = pair.intervals[i]
+        return child
 
     def mutate(self, chance):
-        if chance > random.uniform(0,1):
-            square = random.randrange(0, 10)
-            mutation = random.randrange(-1, 1)
-            self.intervals[square] += mutation
-        else:
-            return
-
-def compare(a):
-    return a.cost
+        if chance > random.uniform(0, 1):
+            specific_interval = random.randint(0, 9)
+            mutation = random.randint(-1, 1)
+            self.intervals[specific_interval] += mutation
 
 
 class Population:
 
     def __init__(self):
         self.array = []
-        i = 20
-        while (i > 0):
+        i = 10
+        while i > 0:
             Riemann = Gene()
             Riemann.rand()
             self.array.append(Riemann)
             i -= 1
 
-    def sort(self):
-        self.array.sort(key=compare(Gene))
+    def generation(self, template):
+        generations = 0
+        while generations < 20000:
+            generations += 1
+            print("Generation: " + str(generations))
 
-    def print(self):
-        for i in range(0,20):
-            print(self.array[i].cost)
+            for i in range(0, len(self.array)):
+                self.array[i].calcCost(template)
 
+            self.array.sort(key=lambda Riemann: Riemann.cost)
 
+            print("Area: " + str(self.array[0].calcArea()))
+            print("Cost: " + str(self.array[0].cost))
+
+            child1 = self.array[0].mate(self.array[1])
+            child2 = self.array[1].mate(self.array[0])
+
+            for i in range(0, len(self.array), 2):
+                self.array[i] = child1
+
+            for i in range(1, len(self.array), 2):
+                self.array[i] = child2
+
+            for i in range(0, len(self.array)):
+                self.array[i].mutate(0.9)
+
+        print("Generation Cap Reached")
+
+print("Welcome to the GArea!")
+print("GArea is a Riemann sum calculator that uses genetic algorithms to calculate.")
 equation = input('Please enter an equation *Syntax Required* :')
 pop = Population()
-for i in range(0, 20):
-    pop.array[i].calcCost(equation)
-pop.print()
+pop.generation(equation)
