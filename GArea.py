@@ -11,7 +11,7 @@ class Gene:
     def rand(self):
         n = 0
         while n < 10:
-            self.intervals.append(random.randint(0, 1000))
+            self.intervals.append(random.randint(-100, 100))
             n += 1
 
     def calcCost(self, template):
@@ -23,14 +23,15 @@ class Gene:
             R = equation.replace('x', str(j))
             left = eval(L)
             right = eval(R)
-            total += (math.fabs(left - self.intervals[int(j)]) + math.fabs(right - self.intervals[int(j)]))
+            total += (math.fabs(left - self.intervals[j-1]) + math.fabs(right - self.intervals[j]))
+            #total += (left - self.intervals[int(j)])**2 + (right - self.intervals[int(j)])**2
             self.cost = total
             j += 1
 
     def calcArea(self):
         total = 0
         for i in range(0, len(self.intervals)):
-            total += self.intervals[i]
+            total += self.intervals[i] * 1
         return total
 
     def mate(self, pair):
@@ -45,7 +46,7 @@ class Gene:
     def mutate(self, chance):
         if chance > random.uniform(0, 1):
             specific_interval = random.randint(0, 9)
-            mutation = random.randint(-1, 1)
+            mutation = random.randint(-10, 10)
             self.intervals[specific_interval] += mutation
 
 
@@ -62,7 +63,7 @@ class Population:
 
     def generation(self, template):
         generations = 0
-        while generations < 20000:
+        while generations < 1000000:
             generations += 1
             print("Generation: " + str(generations))
 
