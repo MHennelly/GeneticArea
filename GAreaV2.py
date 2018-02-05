@@ -55,9 +55,7 @@ class Population:
             self.array.append(Riemann)
 
     def generation(self, template, numgens, step):
-        generations = 0
-        while generations < numgens:
-            generations += 1
+        for generations in range(0, numgens):
             print("Generation: " + str(generations))
 
             for i in range(0, len(self.array)):
@@ -65,8 +63,15 @@ class Population:
 
             self.array.sort(key=lambda Riemann: Riemann.cost)
 
-            print("Area: " + str(self.array[0].calcArea()))
-            print("Cost: " + str(self.array[0].cost))
+            if (self.array[0].cost < step):
+                print("Approximate Answer Found")
+                print("Area: " + str(self.array[0].calcArea()))
+                print("Cost: " + str(self.array[0].cost))
+                break
+
+            if (generations % numgens//10):
+                print("Area: " + str(self.array[0].calcArea()))
+                print("Cost: " + str(self.array[0].cost))
 
             child1 = self.array[0].mate(self.array[1])
             child2 = self.array[1].mate(self.array[0])
@@ -85,7 +90,7 @@ class Population:
             for i in range(0, len(self.array)):
                 self.array[i].mutate(0.5, step)
 
-        print("Generation Cap Reached")
+        print("---End Of Approximation---")
 
     def realAnswer(self, template):
         total = 0
@@ -93,7 +98,7 @@ class Population:
             equation = template
             M = equation.replace('x', str(i + 0.5))
             total += eval(M)
-        print("The actual answer is: " + str(total))
+        print("The actual midpoint sum is: " + str(total))
 
 print("Welcome to GArea.py!")
 print("GArea is a Riemann sum calculator that uses a genetic algorithm to demonstrate how GA's can approximate answers.")
